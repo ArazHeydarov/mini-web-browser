@@ -3,7 +3,7 @@ import requests
 from tkhtmlview import HTMLScrolledText
 from threading import Lock, Thread
 from time import sleep
-
+from random import choice
 
 class HtmlView:
     def __init__(self, root):
@@ -112,3 +112,33 @@ class Age:
         self.lock.acquire()
         self.age = age
         self.lock.release()
+
+def button_func(entry: Entry, left_html_view: HtmlView, right_html_view: HtmlView):
+    """
+    This function is called when the fetch button is clicked.
+    :param entry:
+    :param left_html_view:
+    :param right_html_view:
+    :return:
+    """
+    age_right_value = right_html_view.age.get_age()
+    age_left_value = left_html_view.age.get_age()
+
+    # Comparing the ages of views to decide which one to present the new page
+    if age_right_value > age_left_value:
+        html_view = right_html_view
+    elif age_left_value > age_right_value:
+        html_view = left_html_view
+    else:
+        # If the ages are equal, then randomly choose one of the views
+        if choice([0, 1]):
+            html_view = right_html_view
+        else:
+            html_view = left_html_view
+
+    # Start the timer thread if it is not already running
+    html_view.start_timer_thread()
+
+    # Staring the html viewer thread for selected view
+    thread_html_viewer = Thread(target=html_view.set_html, args=(entry,))
+    thread_html_viewer.start()
